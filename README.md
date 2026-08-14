@@ -12,16 +12,18 @@
 
 ## 📋 Table of Contents
 - [Overview](#-overview)
+- [Highlights](#-highlights)
+- [Demo](#-demo)
 - [Dataset](#-dataset)
 - [Project Structure](#-project-structure)
 - [Methodology](#-methodology)
 - [Models & Results](#-models--results)
-- [Data Leakage: Identified & Fixed](#-data-leakage-identified--fixed)
+- [Data Leakage: Identified & Fixed](#️-data-leakage-identified--fixed)
 - [Limitations & Next Steps](#-limitations--next-steps)
-- [Installation](#-installation)
+- [Installation](#️-installation)
 - [Usage](#-usage)
 - [Key Findings](#-key-findings)
-- [Technologies Used](#-technologies-used)
+- [Technologies Used](#️-technologies-used)
 - [Author](#-author)
 
 ---
@@ -36,6 +38,25 @@ This project compares **6 machine-learning classifiers** to predict whether a Ne
 - ✅ **Establishment-grouped 60/20/20 split** (no establishment appears in two sets)
 - ✅ 5 models plus an SGD optimizer, with GridSearchCV tuning
 - ✅ Group K-Fold cross-validation and full metric evaluation
+
+---
+
+## ✨ Highlights
+
+- **Caught and fixed target leakage that was inflating accuracy from 80% to a fake 91%** — traced it to a feature computed over each establishment's full inspection history (including the row being predicted) and a random row-level split that let the same establishment appear in both train and test. This is the single most valuable thing in the project: recognizing a suspiciously good number and proving it was wrong.
+- Rebuilt every "history" feature (`Failure_Rate`, `Previous_Grade`, `Total_Inspections`, `Days_Since_Last`) to look strictly backwards in time, then re-split the data with `GroupShuffleSplit`/`GroupKFold` keyed on establishment identity, and verified zero overlap between train, validation, and test sets.
+- Went beyond "which model wins" to a deployment argument: a depth-5 Decision Tree is nearly tied with a tuned Random Forest on accuracy, but every one of its predictions can be traced through five human-readable splits — which matters when a regulator has to justify why an establishment was flagged.
+- Read the metrics honestly rather than reporting the best number: flagged that both SVMs never converged, that precision/recall trade-offs differ meaningfully by grade (high-precision-but-low-recall on B, costly over-prediction of A), and that one grouped-CV gap still remains in the tuning step.
+
+---
+
+## 🎥 Demo
+
+*This notebook produces strong visuals — the feature importance bar chart and the confusion matrix for the winning model are the two that would land best as a preview image here for anyone skimming the repo before opening the notebook.*
+
+```
+![Feature importance and confusion matrix](docs/results_preview.png)
+```
 
 ---
 
